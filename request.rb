@@ -14,7 +14,7 @@ class Request
     handle_method_and_path(buffer[0])
     @header = buffer[1..-1]
     if @http_method == "POST"
-      @body = socket.gets
+      @body = socket.read(88)
     end
     return
   end
