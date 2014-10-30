@@ -7,15 +7,20 @@ class Request
 
   def handle_request(socket)
     buffer = []
-    while(buf = socket.gets)
-      buffer << buf
-      break if buf =="\r\n"
-    end
-    handle_method_and_path(buffer[0])
-    @header = buffer[1..-1]
-    if @http_method == "POST"
-      content_length = @header[-2].slice(/(\d+)/).to_i
-      @body = socket.read(content_length)
+    begin
+      while(buf = socket.gets)
+        buffer << buf
+        break if buf =="\r\n"
+      end
+      handle_method_and_path(buffer[0])
+      @header = buffer[1..-1]
+      if @http_method == "POST"
+        content_length = @header[-2].slice(/(\d+)/).to_i
+        @body = socket.read(content_length)
+      end
+    rescue => e
+      print e
+      print e.backtrace
     end
   end
 

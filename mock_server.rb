@@ -7,7 +7,7 @@ require './response.rb'
 server = TCPServer.open("localhost",8000)
 #クライアントの接続を待ち受ける
 while true
-  Thread.start(server.accept) do |socket|
+    socket = server.accept
     #クライアントからの入力を格納する
     request = Request.new(socket)
     puts request
@@ -15,7 +15,6 @@ while true
     response = Responce.new(socket,request)
     #ソケットを閉じる
     socket.close
-  end
 end
 #TCPサーバーをクローズする
 server.close

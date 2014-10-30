@@ -1,2 +1,2 @@
-tmkshrnr@gmail.com:tmks0820
-tmks0989@gmail.com:tamkal0839
+account1@example.com:password1
+account2@example.co.jp:password2
