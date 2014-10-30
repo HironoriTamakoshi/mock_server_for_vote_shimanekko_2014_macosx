@@ -17,7 +17,6 @@ class Request
       content_length = @header[-2].slice(/(\d+)/).to_i
       @body = socket.read(content_length)
     end
-    return
   end
 
   def handle_method_and_path(req)

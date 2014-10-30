@@ -1,11 +1,43 @@
 require 'uri'
 DOCUMENT_ROOT = File.expand_path("../",__FILE__)
-
+class Account < Struct.new(:email,:password)
+end
 
 class Responce
   DEFAULT_STATUS = "HTTP/1.1 200 OK"
   DEFAULT_HEADER = "Connection: close\r\nContent-Type: text/html; charset=utf-8\r\n\r\n"
-  attr_accessor :status,:header,:body
+  SUCCESS_RESULT_PAGE =<<HTML
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Mock Server</title>
+  </head>
+  <body>
+    <p>Mock Server</p>
+    <div class="section">
+      <p>投票完了</p>
+    </div>
+  </body>
+</html>
+HTML
+  FALSE_RESULT_PAGE =<<HTML
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Mock Server</title>
+  </head>
+  <body>
+    <p>Mock Server</p>
+    <div class="section">
+      <p>本日は既に投票済みです</p>
+    </div>
+  </body>
+</html>
+HTML
+
+  attr_accessor :status,:header,:body,:cookie,:account,:result_message
   def initialize(sock,req)
     @status = DEFAULT_STATUS
     @header = DEFAULT_HEADER
@@ -20,8 +52,9 @@ class Responce
       sock.write(@body)
     else req.http_method == "POST"
       deal_with_path(req.path)
-      account = URI.unescape(req.body).split("&").select{|data|data.slice!(/.+=/)}
-      if validation(account)
+      tmp = URI.unescape(req.body).split("&").select{|data|data.slice!(/.+=/)}
+      @account = Account.new(tmp[0],tmp[1])
+      if validation
         sock.write(@status)
         sock.write(@header)
         sock.write(@body)
@@ -35,13 +68,13 @@ class Responce
     elsif path.include? "vote_page.html"
       @body = open_view_file("/vote_page.html")
     elsif path == "/vote_for_mock"
-      @body = open_view_file("/result.html")
+      @body = FALSE_RESULT_PAGE
     end
   end
 
-  def validation(account)
+  def validation
     db_info.each do |data|
-      return true if account[0] == data[0] && account[1] == data[1]
+      return true if account.email == data[0] && account.password == data[1]
     end
     return false
   end
