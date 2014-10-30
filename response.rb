@@ -59,7 +59,7 @@ class Responce
       @body = open_view_file("/vote_page.html")
     elsif path == "/vote_for_mock"
        @result_message = result_message
-       @body = eval(ERB.new(File.read(DOCUMENT_ROOT+"/result.html.erb")).src)
+       @body = eval(ERB.new(File.open(DOCUMENT_ROOT+"/result.html.erb").read).src)
     end
   end
 
