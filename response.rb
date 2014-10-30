@@ -17,6 +17,7 @@ class Responce
     <p>Mock Server</p>
     <div class="section">
       <p>投票完了</p>
+      <a ref="/vote/detail.php?id=00000021">ログアウトする</a>
     </div>
   </body>
 </html>
@@ -32,6 +33,7 @@ HTML
     <p>Mock Server</p>
     <div class="section">
       <p>本日は既に投票済みです</p>
+      <a ref="/vote/detail.php?id=00000021">ログアウトする</a>
     </div>
   </body>
 </html>
