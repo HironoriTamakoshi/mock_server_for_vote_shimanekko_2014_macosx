@@ -1,45 +1,14 @@
 require 'uri'
 require './account.rb'
+require 'erb'
 DOCUMENT_ROOT = File.expand_path("../",__FILE__)
 
 
 class Responce
   DEFAULT_STATUS = "HTTP/1.1 200 OK"
   DEFAULT_HEADER = "Connection: close\r\nContent-Type: text/html; charset=utf-8\r\n\r\n"
-  SUCCESS_RESULT_PAGE =<<HTML
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Mock Server</title>
-  </head>
-  <body>
-    <p>Mock Server</p>
-    <div class="section">
-      <p>投票完了</p>
-      <a ref="/vote/detail.php?id=00000021">ログアウトする</a>
-    </div>
-  </body>
-</html>
-HTML
-  FALSE_RESULT_PAGE =<<HTML
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Mock Server</title>
-  </head>
-  <body>
-    <p>Mock Server</p>
-    <div class="section">
-      <p>本日は既に投票済みです</p>
-      <a ref="/vote/detail.php?id=00000021">ログアウトする</a>
-    </div>
-  </body>
-</html>
-HTML
 
-  attr_accessor :status,:header,:body,:cookie,:account,:result_message
+  attr_accessor :status,:header,:body,:cookie,:account
   def initialize(sock,req)
     @status = DEFAULT_STATUS
     @header = DEFAULT_HEADER
@@ -61,17 +30,17 @@ HTML
         @account = Account.new(id)
 
         if @account && @account.vote_today?
-          @result_message = "本日は既に投票済みです"
-          deal_with_path(req.path)
+          result_message = "本日は既に投票済みです"
+          deal_with_path(req.path,result_message)
           sock.write(@status)
           sock.write(@header)
           sock.write(@body)
         elsif @account
-          @result_message = "投票完了"
+          result_message = "投票完了"
           #投票したことを設定
           @account.voted
           Account.save(@account.set_new_data)
-          deal_with_path(req.path)
+          deal_with_path(req.path,result_message)
           sock.write(@status)
           sock.write(@header)
           sock.write(@body)
@@ -83,17 +52,14 @@ HTML
   end
 
   #パスを解析し、レスポンスのボディを返す
-  def deal_with_path(path)
+  def deal_with_path(path,result_message=nil)
     if path == "/vote/detail.php?id=00000021"
       @body = open_view_file("/vote.html")
     elsif path.include? "vote_page.html"
       @body = open_view_file("/vote_page.html")
     elsif path == "/vote_for_mock"
-      if @result_message == "投票完了"
-        @body = SUCCESS_RESULT_PAGE
-      else
-        @body = FALSE_RESULT_PAGE
-      end
+       @result_message = result_message
+       @body = eval(ERB.new(File.read(DOCUMENT_ROOT+"/result.html.erb")).src)
     end
   end
 
