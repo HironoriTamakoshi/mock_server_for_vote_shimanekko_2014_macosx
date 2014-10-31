@@ -1,6 +1,6 @@
 require 'yaml'
 require 'date'
-DOCUMENT_ROOT = File.expand_path("../",__FILE__)
+
 
 class Account
   VOTED_DATE = Date.today
