@@ -8,51 +8,29 @@ class Responce
   DEFAULT_STATUS = "HTTP/1.1 200 OK"
   DEFAULT_HEADER = "Connection: close\r\nContent-Type: text/html; charset=utf-8\r\n\r\n"
   ALERT_MESSAGE = "メールアドレス又はパスワードが違います"
+  RESULT_MESSAGE = {
+                 :complete => "投票完了",
+                 :already => "本日は既に投票済みです",
+                 :error => "不明なエラーです"
+                 }
+  attr_accessor :status,:header,:body,:account
 
-  attr_accessor :status,:header,:body,:cookie,:account
   def initialize(sock,req)
     @status = DEFAULT_STATUS
     @header = DEFAULT_HEADER
     deal_with_req(sock,req)
   end
 
+  #リクエストに対するレスポンス処理の大本
   def deal_with_req(sock,req)
-    if req.http_method == "GET"
-      deal_with_path(req.path)
-      sock.write(@status)
-      sock.write(@header)
-      sock.write(@body)
-    else req.http_method == "POST"
-      deal_with_path(req.path)
+    case req.http_method 
+    when "GET"
+      responce_for_get(sock,req)
+    when "POST"
       #リクエストヘッダのボディからemailとpasswordを取得し、一時変数に格納
       tmp = URI.unescape(req.body).split("&").select{|data|data.slice!(/.+=/)}
-      #得られたemailとpasswordが一致するアカウントが存在する場合のみにAccountクラスのインスタンスを作成
-      if (id = Account.find(tmp[0],tmp[1]))
-        @account = Account.new(id)
-
-        if @account && @account.vote_today?
-          result_message = "本日は既に投票済みです"
-          deal_with_path(req.path,result_message)
-          sock.write(@status)
-          sock.write(@header)
-          sock.write(@body)
-        elsif @account
-          result_message = "投票完了"
-          #投票したことを設定
-          @account.voted
-          Account.save(@account.set_new_data)
-          deal_with_path(req.path,result_message)
-          sock.write(@status)
-          sock.write(@header)
-          sock.write(@body)
-        end
-      else
-        result_message = "不明なエラーです"
-        deal_with_path(req.path,result_message,ALERT_MESSAGE)
-        sock.write(@status)
-        sock.write(@header)
-        sock.write(@body)
-      end
+      result_message_status = check_status(tmp)
+      response_for_post(sock,req,result_message_status)
     end
   end
 
@@ -76,6 +54,37 @@ class Responce
     end
   end
 
-  def not_found
+  #レスポンスをソケットに書き込む
+  def writing_response(sock)
+     sock.write @status
+     sock.write @header
+     sock.write @body
+  end
+
+  #GETリクエストに対する処理
+  def responce_for_get(sock,req)
+    deal_with_path(req.path)
+    writing_response sock
+  end
+
+  #POSTリクエストに対する処理(ステータスが:completeならアカウントを保存する)
+  def response_for_post(sock,req,result_message_status)
+    result_message = RESULT_MESSAGE[result_message_status]
+    if result_message_status == :complete
+      @account.voted
+      Account.save(@account.set_new_data)
+    end
+    deal_with_path(req.path,result_message,nil)
+    writing_response(sock)
+  end
+
+  #既に投票したか、投票前か、アカウントが存在しないかをチェックする
+  def check_status(tmp)
+    if(id = Account.find(tmp[0],tmp[1]))
+      @account = Account.new(id)
+      return (@account && @account.vote_today?) ? :already : :complete
+    else
+      return :error
+    end
   end
 end
