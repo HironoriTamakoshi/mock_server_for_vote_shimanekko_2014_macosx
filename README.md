@@ -57,20 +57,20 @@
         
 2. db.ymlにクライアント側のアカウントのメールアドレスとパスワードを記入する(yamlのハッシュの配列)  
 
-```
----
--
- email: example.com
- password: password
- vote_day:             #ここは自動的に入力されるため最初は記入しないでください。
-                          
--
- email: example2.com
- password: password2
- vote_day:             #ここは自動的に入力されるため最初は記入しないでください。
 
-# 複数設定可能　以下略
-```
+        ---
+        -
+         email: example.com
+         password: password
+         vote_day:             #ここは自動的に入力されるため最初は記入しないでください。
+                                  
+        -
+         email: example2.com
+         password: password2
+         vote_day:             #ここは自動的に入力されるため最初は記入しないでください。
+        
+        # 複数設定可能　以下略
+
 
 ## 使用方法
 
