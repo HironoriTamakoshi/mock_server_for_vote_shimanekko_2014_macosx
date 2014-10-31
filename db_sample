@@ -1,0 +1,10 @@
+---
+- email: account1@example.com
+  password: password1
+  vote_date: 
+- email: account2@example.co.jp
+  password: password2
+  vote_date: 
+- email: account3@example.co.jp
+  password: password3
+  vote_date: 
