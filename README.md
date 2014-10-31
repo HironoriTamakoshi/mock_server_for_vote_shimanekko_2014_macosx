@@ -29,7 +29,7 @@
         WWW-Mechanize/#{VERSION} (http://rubyforge.org/projects/mechanize/)
 
 3. vote.rbの変更  
-  # 変更前
+   #####変更前
 
         #23行目
         #...(略)
@@ -38,7 +38,7 @@
         #...(略)
         #32行目
         start_page = account[:agent].get('http://www.yurugp.jp/vote/detail.php?id=00000021')
-  # 変更後
+    #####変更後
 
         #...(略)
         #23行目
