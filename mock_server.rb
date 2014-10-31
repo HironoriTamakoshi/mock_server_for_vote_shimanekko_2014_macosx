@@ -6,7 +6,7 @@ require './response.rb'
 #TCPサーバーをオープン
 server = TCPServer.open("localhost",8000)
 #クライアントの接続を待ち受ける
-while true
+loop do
     socket = server.accept
     #クライアントからの入力を格納する
     request = Request.new(socket)
