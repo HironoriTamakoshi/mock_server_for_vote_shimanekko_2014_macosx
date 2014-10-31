@@ -7,6 +7,7 @@ DOCUMENT_ROOT = File.expand_path("../",__FILE__)
 class Responce
   DEFAULT_STATUS = "HTTP/1.1 200 OK"
   DEFAULT_HEADER = "Connection: close\r\nContent-Type: text/html; charset=utf-8\r\n\r\n"
+  ALERT_MESSAGE = "メールアドレス又はパスワードが違います"
 
   attr_accessor :status,:header,:body,:cookie,:account
   def initialize(sock,req)
@@ -44,22 +45,27 @@ class Responce
           sock.write(@status)
           sock.write(@header)
           sock.write(@body)
-        else
-          not_found
         end
+      else
+        result_message = "不明なエラーです"
+        deal_with_path(req.path,result_message,ALERT_MESSAGE)
+        sock.write(@status)
+        sock.write(@header)
+        sock.write(@body)
       end
     end
   end
 
   #パスを解析し、レスポンスのボディを返す
-  def deal_with_path(path,result_message=nil)
+  def deal_with_path(path,result_message=nil,alert=nil)
     if path == "/vote/detail.php?id=00000021"
       @body = open_view_file("/vote.html")
     elsif path.include? "vote_page.html"
       @body = open_view_file("/vote_page.html")
     elsif path == "/vote_for_mock"
-       @result_message = result_message
-       @body = eval(ERB.new(File.open(DOCUMENT_ROOT+"/result.html.erb").read).src)
+      @result_message = result_message
+      @alert = alert
+      @body = eval(ERB.new(open_view_file("/result.html.erb")).src)
     end
   end
 

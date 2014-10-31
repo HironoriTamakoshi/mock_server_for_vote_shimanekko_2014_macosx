@@ -5,6 +5,9 @@
     <title>Mock Server</title>
   </head>
   <body>
+    <% if @alert %>
+      <p><% @alert %></p>
+    <% end %>
     <p>Mock Server</p>
     <div class="section">
       <p><%= @result_message %></p>
