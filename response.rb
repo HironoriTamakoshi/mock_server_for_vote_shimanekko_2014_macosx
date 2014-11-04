@@ -28,7 +28,7 @@ class Responce
       responce_for_get(sock,req)
     when "POST"
       #リクエストヘッダのボディからemailとpasswordを取得し、一時変数に格納
-      tmp = URI.unescape(req.body).split("&").select{|data|data.slice!(/.+=/)}
+      tmp = URI.unescape(req.body).split("&").select{ |data|data.slice!(/.+=/) }
       result_message_status = check_status(tmp)
       response_for_post(sock,req,result_message_status)
     end
