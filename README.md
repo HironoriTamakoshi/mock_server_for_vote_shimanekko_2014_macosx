@@ -84,11 +84,11 @@
         $cd vote_shimanekko_2014_macosx
         $open vote.app
 
-3. ログの確認
+3. ログの確認(クライアント側)
         
         $cat log/'その日の日付'.log
 
-4. モックサーバーの終了
+4. モックサーバーの終了(サーバー側)
 
         Ctrl+C
 
