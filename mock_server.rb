@@ -1,5 +1,4 @@
 require 'socket'
-require 'pry'
 require './request.rb'
 require './response.rb'
 
